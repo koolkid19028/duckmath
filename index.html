@@ -3,50 +3,23 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Loading...</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DuckMath</title>
 </head>
 <body>
 
 <script>
-(async () => {
-    const blank = window.open("about:blank", "_blank");
+    const target = "https://duckmath-sigma.vercel.app/#/settings";
 
-    if (!blank) {
-        document.body.innerHTML = "Please allow popups.";
-        return;
-    }
-
-    try {
-        const response = await fetch("./duckmath.html");
-
-        if (!response.ok) {
-            throw new Error("Could not load duckmath.html");
-        }
-
-        let html = await response.text();
-
-        // Keep CSS, JS, images, and relative links working.
-        const base = new URL("./", window.location.href).href;
-
-        html = html.replace(
-            /<head([^>]*)>/i,
-            `<head$1><base href="${base}">`
-        );
-
-        blank.document.open();
-        blank.document.write(html);
-        blank.document.close();
-
-    } catch (error) {
-        blank.document.open();
-        blank.document.write(`
-            <h2>Failed to load duckmath.html</h2>
-            <p>${error.message}</p>
-        `);
-        blank.document.close();
-    }
-})();
+    // Open your own site directly at the settings route.
+    window.location.replace(target);
 </script>
+
+<noscript>
+    <a href="https://duckmath-sigma.vercel.app/#/settings">
+        Open DuckMath Settings
+    </a>
+</noscript>
 
 </body>
 </html>
