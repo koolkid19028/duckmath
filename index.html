@@ -1,49 +1,105 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DuckMath Test</title>
+    <title>Launcher</title>
 </head>
 <body>
-<script>
-(async () => {
-    const blank = window.open("about:blank", "_blank");
 
-    if (!blank) {
-        document.body.textContent = "Popup blocked.";
+<script>
+(async function () {
+    // Create the new tab as about:blank.
+    const win = window.open("about:blank", "_blank");
+
+    if (!win) {
+        document.body.innerHTML = "<h2>Popup blocked</h2>";
         return;
     }
 
+    // The loader is the about:blank document itself.
+    win.document.open();
+    win.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Loading...</title>
+            <style>
+                html, body {
+                    margin: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: #111;
+                    color: white;
+                    font-family: Arial, sans-serif;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+
+                .loader {
+                    text-align: center;
+                    font-size: 24px;
+                }
+
+                .spinner {
+                    width: 40px;
+                    height: 40px;
+                    margin: 0 auto 20px;
+                    border: 4px solid #444;
+                    border-top-color: white;
+                    border-radius: 50%;
+                    animation: spin .7s linear infinite;
+                }
+
+                @keyframes spin {
+                    to { transform: rotate(360deg); }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="loader">
+                <div class="spinner"></div>
+                Loading DuckMath...
+            </div>
+        </body>
+        </html>
+    `);
+    win.document.close();
+
+    // Load the local DuckMath page after the loader is displayed.
     try {
         const response = await fetch("./duckmath.html");
 
         if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
+            throw new Error("HTTP " + response.status);
         }
 
         let html = await response.text();
 
-        // Keep resources relative to duckmath.html.
+        // Keep relative assets working.
+        const base = new URL("./", window.location.href).href;
+
         html = html.replace(
             /<head([^>]*)>/i,
-            `<head$1><base href="${new URL("./", location.href)}">`
+            `<head$1><base href="${base}">`
         );
 
-        blank.document.open();
-        blank.document.write(html);
-        blank.document.close();
-
-        // Test the hash route.
-        blank.location.hash = "/class/eagle-duckcraft";
+        // Replace the loader with duckmath.html.
+        win.document.open();
+        win.document.write(html);
+        win.document.close();
 
     } catch (error) {
-        blank.document.body.innerHTML =
-            `<h2>Could not load duckmath.html</h2><p>${error}</p>`;
+        win.document.body.innerHTML =
+            "<h2>Failed to load DuckMath</h2><p>" +
+            error.message +
+            "</p>";
     }
 })();
 </script>
+
 </body>
 </html>
 ```
