@@ -4,37 +4,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DuckMath</title>
+    <title>DuckMath Test</title>
 </head>
 <body>
-
 <script>
-(function () {
-    const firstVisitKey = "duckmath_first_visit";
-    const duckmath = "duckmath.html";
+(async () => {
+    const blank = window.open("about:blank", "_blank");
 
-    // Check whether this browser has visited before.
-    const hasVisited = localStorage.getItem(firstVisitKey);
+    if (!blank) {
+        document.body.textContent = "Popup blocked.";
+        return;
+    }
 
-    if (!hasVisited) {
-        // Remember that the first visit has happened.
-        localStorage.setItem(firstVisitKey, "1");
+    try {
+        const response = await fetch("./duckmath.html");
 
-        // First visit → Settings.
-        window.location.replace(duckmath + "#/settings");
-    } else {
-        // Subsequent visits → normal DuckMath page.
-        window.location.replace(duckmath);
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        let html = await response.text();
+
+        // Keep resources relative to duckmath.html.
+        html = html.replace(
+            /<head([^>]*)>/i,
+            `<head$1><base href="${new URL("./", location.href)}">`
+        );
+
+        blank.document.open();
+        blank.document.write(html);
+        blank.document.close();
+
+        // Test the hash route.
+        blank.location.hash = "/class/eagle-duckcraft";
+
+    } catch (error) {
+        blank.document.body.innerHTML =
+            `<h2>Could not load duckmath.html</h2><p>${error}</p>`;
     }
 })();
 </script>
-
-<noscript>
-    <p>
-        <a href="duckmath.html">Open DuckMath</a>
-    </p>
-</noscript>
-
 </body>
 </html>
 ```
