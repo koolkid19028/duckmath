@@ -1,78 +1,39 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Loading DuckMath...</title>
+    <title>DuckMath</title>
 </head>
 <body>
 
 <script>
-(async () => {
-    const appURL =
-        "https://duckmath-sigma.vercel.app/duckmath.html/";
+(function () {
+    const firstVisitKey = "duckmath_first_visit";
+    const duckmath = "duckmath.html";
 
-    const route = "#/settings";
+    // Check whether this browser has visited before.
+    const hasVisited = localStorage.getItem(firstVisitKey);
 
-    // Open the actual about:blank document.
-    const win = window.open("about:blank", "_blank");
+    if (!hasVisited) {
+        // Remember that the first visit has happened.
+        localStorage.setItem(firstVisitKey, "1");
 
-    if (!win) {
-        document.body.textContent =
-            "Popup blocked. Please allow popups for this site.";
-        return;
-    }
-
-    try {
-        const response = await fetch(appURL);
-
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
-        }
-
-        let html = await response.text();
-
-        // Make relative CSS, JS, images, and other files
-        // resolve relative to duckmath.html.
-        const baseURL =
-            new URL("./", appURL).href;
-
-        const base =
-            `<base href="${baseURL}">`;
-
-        if (/<head[\s>]/i.test(html)) {
-            html = html.replace(
-                /<head([^>]*)>/i,
-                `<head$1>${base}`
-            );
-        } else {
-            html = base + html;
-        }
-
-        // Write the app directly into about:blank.
-        // No iframe is involved.
-        win.document.open();
-        win.document.write(html);
-        win.document.close();
-
-        // Preserve the requested hash route.
-        win.location.hash = route.substring(1);
-
-    } catch (error) {
-        win.document.open();
-        win.document.write(`
-            <!DOCTYPE html>
-            <html>
-            <body style="font-family:Arial;padding:40px">
-                <h2>DuckMath failed to load</h2>
-                <p>${error.message}</p>
-            </body>
-            </html>
-        `);
-        win.document.close();
+        // First visit → Settings.
+        window.location.replace(duckmath + "#/settings");
+    } else {
+        // Subsequent visits → normal DuckMath page.
+        window.location.replace(duckmath);
     }
 })();
 </script>
+
+<noscript>
+    <p>
+        <a href="duckmath.html">Open DuckMath</a>
+    </p>
+</noscript>
 
 </body>
 </html>
