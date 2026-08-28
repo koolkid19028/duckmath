@@ -70,7 +70,7 @@
 
     // Load the local DuckMath page after the loader is displayed.
     try {
-        const response = await fetch("./duckmath.html");
+        const response = await fetch("./duckmath.html/#/class/eagle-duckcraft");
 
         if (!response.ok) {
             throw new Error("HTTP " + response.status);
